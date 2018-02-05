@@ -1,4 +1,4 @@
-package com.diy.diyplay;
+package diy.com.play;
 
 import org.junit.Test;
 

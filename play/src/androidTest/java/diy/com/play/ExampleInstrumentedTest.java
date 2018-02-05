@@ -1,4 +1,4 @@
-package com.diy.diyplay;
+package diy.com.play;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.diy.diyplay", appContext.getPackageName());
+        assertEquals("diy.com.play.test", appContext.getPackageName());
     }
 }
