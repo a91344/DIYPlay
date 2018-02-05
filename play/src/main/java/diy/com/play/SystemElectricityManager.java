@@ -12,11 +12,14 @@ import android.content.IntentFilter;
 public abstract class SystemElectricityManager {
     private static int level;
     private static int scale;
+    private static Context mContext;
+    private static BroadcastReceiver broadcastReceiver;
 
     public static void initData(Context context, final OnSystemElectricityManager onSystemElectricityManager) {
+        mContext=context;
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        context.registerReceiver(new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
@@ -25,7 +28,8 @@ public abstract class SystemElectricityManager {
                     onSystemElectricityManager.onReceive(level, scale);
                 }
             }
-        }, intentFilter);
+        };
+        context.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     public static int getCurrentElectricity() {
@@ -35,7 +39,10 @@ public abstract class SystemElectricityManager {
     public static int getMaxElectricity() {
         return scale;
     }
-
+    public static void unregisterReceiver(){
+        mContext.unregisterReceiver(broadcastReceiver);
+        mContext=null;
+    }
     interface OnSystemElectricityManager {
         void onReceive(int level, int scale);
     }

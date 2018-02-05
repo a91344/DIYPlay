@@ -48,6 +48,8 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
     private TextView ijkTvReturn;
     private TextView ijkTvTitle;
     private TextView ijkTvElcOrTime;
+    private TextView ijkTvTimeCurrent;
+    private TextView ijkTvMaxTime;
 
     private Thread thread;
 
@@ -103,6 +105,9 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
         ijkTvTitle = (TextView) findViewById(R.id.ijk_tv_title);
         ijkTvElcOrTime = (TextView) findViewById(R.id.ijk_tv_elc_or_time);
 
+        ijkTvTimeCurrent = (TextView) findViewById(R.id.ijk_tv_time_current);
+        ijkTvMaxTime = (TextView) findViewById(R.id.ijk_tv_max_time);
+
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             ((Activity) context).getWindow().getDecorView().setSystemUiVisibility(View.INVISIBLE);
         }
@@ -146,7 +151,9 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
         ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
-                ijkSb.setMax((int) iMediaPlayer.getDuration());
+                long duration = iMediaPlayer.getDuration();
+                ijkSb.setMax((int) duration);
+                ijkTvMaxTime.setText(SystemTimeManage.longToString(duration));
                 height = getHeight();
                 width = getWidth();
                 creatTimeThread();
@@ -274,6 +281,12 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
                         break;
                     }
                     ijkSb.setProgress((int) ijkMediaPlayer.getCurrentPosition());
+                    ijkTvTimeCurrent.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ijkTvTimeCurrent.setText(SystemTimeManage.longToString(ijkMediaPlayer.getCurrentPosition()));
+                        }
+                    });
                     Log.i("AX2", "run: \t" + ijkSb + "\t" + ijkSb.getMax() + "\t" + ijkSb.getProgress() + "\t" + thread.getName() + "\t" + ijkMediaPlayer.getCurrentPosition());
                 }
                 thread = null;
@@ -329,6 +342,7 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         isPlay = false;
+        SystemElectricityManager.unregisterReceiver();
     }
 
     @Override
@@ -353,6 +367,7 @@ public class IJKVideoView extends FrameLayout implements SurfaceHolder.Callback,
     private void restoreData(SavedState temp) {
         ijkMediaPlayer = temp.getIjkMediaPlayer();
         ijkSb.setMax((int) ijkMediaPlayer.getDuration());
+        ijkTvMaxTime.setText(SystemTimeManage.longToString(ijkMediaPlayer.getDuration()));
 //        width = temp.getWidth();
 //        height = temp.getHeight();
         ijkBtPlay.setText(temp.getPlayStatus());
